@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Image Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .upload-form {
+            margin: 20px 0;
+        }
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .result-item {
+            text-align: center;
+        }
+        .result-item img {
+            max-width: 200px;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result-item p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fish Image Search</h1>
+    <div class="upload-form">
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="image" id="imageInput" accept="image/*" required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <div id="error" class="error"></div>
+    <div id="results" class="results"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const imageInput = document.getElementById('imageInput');
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+
+            // Clear previous results and errors
+            errorDiv.innerHTML = '';
+            resultsDiv.innerHTML = '';
+
+            if (!imageInput.files[0]) {
+                errorDiv.innerHTML = 'Please select an image to upload.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', imageInput.files[0]);
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    errorDiv.innerHTML = data.error;
+                    return;
+                }
+
+                if (data.matches && data.matches.length > 0) {
+                    data.matches.forEach(match => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'result-item';
+
+                        const img = document.createElement('img');
+                        img.src = `/${match.path}`;  // Path to the image in static/raw_data/
+                        img.alt = 'Fish Image';
+
+                        const distance = document.createElement('p');
+                        distance.innerText = `Distance: ${match.distance.toFixed(2)}`;
+
+                        resultItem.appendChild(img);
+                        resultItem.appendChild(distance);
+                        resultsDiv.appendChild(resultItem);
+                    });
+                } else {
+                    resultsDiv.innerHTML = '<p>No matches found.</p>';
+                }
+            } catch (err) {
+                errorDiv.innerHTML = 'An error occurred while searching. Please try again.';
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

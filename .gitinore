@@ -1,0 +1,30 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Environment variables
+.env
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database migrations (optional, if you don't want to track migrations)
+migrations/
+
+# Static files (if they are generated or not meant to be versioned)
+static/raw_data/
+
+# PyCharm-specific files
+.idea/
+*.iml
+
+# macOS-specific files
+.DS_Store
+
+# Other common ignores
+*.log
+*.tmp
+*.swp
